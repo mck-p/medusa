@@ -1,14 +1,16 @@
 import express from "express";
+
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { StaticRouterContext } from "react-router";
 import { StaticRouter } from "react-router-dom";
 import { Helmet } from "react-helmet";
+
 import App from "./App";
 import Provider from "./store/provider";
 import createStore from "./store";
-
-import type { State } from "./store";
+import * as Data from "./data";
+import type { State } from "./store/types";
 
 let assets: any;
 
@@ -36,88 +38,21 @@ const jsScriptTagsFromAssets = (assets, entrypoint, extra = "") =>
       : ""
     : "";
 
-const getDefaultStateForDomain = (req: express.Request): State => {
+const getDefaultStateForDomain = async (
+  req: express.Request
+): Promise<State> => {
   return {
-    pages: [
-      {
-        id: 1,
-        slug: "/",
-        exact: true,
-        components: [
-          {
-            id: 7,
-            name: "PageMeta:One",
-            props: {
-              title: "My Awesome Title",
-              description: "This is the description for this webpage",
-            },
-          },
-          {
-            id: 3,
-            name: "Header:One",
-            props: {
-              name: "FooBar",
-              navItems: [
-                {
-                  label: "Home",
-                  href: "/",
-                },
-                {
-                  label: "About",
-                  href: "/about",
-                },
-              ],
-            },
-          },
-          {
-            id: 5,
-            name: "Footer:One",
-            props: {
-              name: "BAZBORP",
-              navItems: [
-                {
-                  label: "Home",
-                  href: "/",
-                },
-                {
-                  label: "About",
-                  href: "/about",
-                },
-              ],
-            },
-          },
-        ],
-      },
-      {
-        id: 2,
-        slug: "/about",
-        components: [
-          {
-            id: 4,
-            name: "Header:Two",
-            props: {
-              name: "BAZBORP",
-              navItems: [
-                {
-                  label: "Home",
-                  href: "/",
-                },
-                {
-                  label: "About",
-                  href: "/about",
-                },
-              ],
-            },
-          },
-        ],
-      },
-    ],
+    redirects: await Data.Redirects.getByReq(req),
+    pages: await Data.Pages.getByReq(req),
   };
 };
 
-export const renderApp = (req: express.Request, res: express.Response) => {
+export const renderApp = async (
+  req: express.Request,
+  res: express.Response
+) => {
   const context: StaticRouterContext = {};
-  const store = createStore(getDefaultStateForDomain(req));
+  const store = createStore(await getDefaultStateForDomain(req));
 
   const markup = renderToString(
     <Provider store={store}>
@@ -143,6 +78,9 @@ export const renderApp = (req: express.Request, res: express.Response) => {
         ${meta.meta.toString()} 
         ${meta.link.toString()} 
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inconsolata&family=Karla&display=swap" rel="stylesheet">
         ${cssLinksFromAssets(assets, 'client')}
     </head>
     <body>
@@ -161,8 +99,8 @@ export const renderApp = (req: express.Request, res: express.Response) => {
 const server = express()
   .disable("x-powered-by")
   .use(express.static(process.env.RAZZLE_PUBLIC_DIR!))
-  .get("/*", (req: express.Request, res: express.Response) => {
-    const { html = "", redirect = false } = renderApp(req, res);
+  .get("/*", async (req: express.Request, res: express.Response) => {
+    const { html = "", redirect = false } = await renderApp(req, res);
     if (redirect) {
       res.redirect(redirect);
     } else {

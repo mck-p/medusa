@@ -1,6 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
+import * as Typography from "../Typography";
+
 import styled from "@emotion/styled";
 
 const HeaderEl = styled.header`
@@ -11,7 +13,12 @@ const Logo = styled.h1``;
 
 const NavBar = styled.nav``;
 
-const NavItems = ({ items }) => (
+interface Item {
+  href: string;
+  label: string;
+}
+
+const NavItems = ({ items }: { items: Item[] }) => (
   <NavBar>
     {items.map((item) => (
       <Link to={item.href} key={item.label}>
@@ -21,10 +28,10 @@ const NavItems = ({ items }) => (
   </NavBar>
 );
 
-const Header = ({ name, navItems }) => (
+const Header = ({ name, navItems }: { name: string; navItems: Item[] }) => (
   <HeaderEl>
     <Link to="/">
-      <Logo>{name}</Logo>
+      <Typography.Headers.H1>{name}</Typography.Headers.H1>
     </Link>
     <NavItems items={navItems} />
   </HeaderEl>

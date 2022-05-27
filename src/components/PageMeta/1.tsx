@@ -1,7 +1,12 @@
 import React from "react";
 import Helmet from "react-helmet";
 
-const PageMeta = ({ title, description }) => (
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const PageMeta = ({ title, description }: Props) => (
   <Helmet>
     {title ? <title>{title}</title> : ""}
     {description ? <meta name="description" content={description}></meta> : ""}

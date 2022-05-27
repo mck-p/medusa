@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import * as Typography from "../Typography";
 
 import styled from "@emotion/styled";
 
@@ -24,7 +25,7 @@ const NavItems = ({ items }) => (
 const Footer = ({ name, navItems }) => (
   <FooterEl>
     <Link to="/">
-      <Logo>{name}</Logo>
+      <Typography.Headers.H4>{name}</Typography.Headers.H4>
     </Link>
     <NavItems items={navItems} />
   </FooterEl>

@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
 import { useSelector } from "react-redux";
-import type { State } from "./store";
+import type { State } from "./store/types";
 
 import * as Components from "./components";
 
